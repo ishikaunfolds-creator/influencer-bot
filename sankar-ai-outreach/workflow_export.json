@@ -1,0 +1,49 @@
+{
+  "name": "Sankar Group Creator Outreach Demo",
+  "version": "1.0.0",
+  "mode": "local-demo",
+  "description": "End-to-end outreach workflow definition for synthetic test records. No external services are connected.",
+  "services": {
+    "instagram_research": { "status": "manual-public-data-entry", "private_data": false },
+    "claude_ai": { "status": "not-connected", "demo_behavior": "template-based draft and transparent local rules" },
+    "gmail": { "status": "not-connected", "demo_behavior": "approved actions are recorded locally and never delivered" },
+    "google_sheets": { "status": "csv-import-ready", "live_sync": false }
+  },
+  "campaign_defaults": {
+    "campaign_name": "Sustainable Living Creator Partnerships",
+    "brand": "Sankar Group",
+    "target_niche": "sustainable living",
+    "target_location": "India",
+    "min_followers": 10000,
+    "max_followers": 200000,
+    "first_follow_up_days_after_initial": 4,
+    "second_follow_up_days_after_first": 6
+  },
+  "lead_fields": [
+    "lead_id", "creator_name", "instagram_username", "instagram_profile_url", "niche", "followers",
+    "public_business_email", "location", "public_profile_notes", "fit_score", "status", "source",
+    "initial_email_sent", "follow_up_1_due", "follow_up_1_sent", "follow_up_2_due", "follow_up_2_sent",
+    "reply_type", "last_reply", "opt_out", "owner", "internal_note"
+  ],
+  "fit_score": {
+    "type": "transparent-rule-based-demo-score",
+    "max": 100,
+    "weights": { "niche_fit": 40, "follower_range_fit": 20, "location_fit": 15, "public_email_present": 15, "profile_completeness": 10 }
+  },
+  "statuses": ["New Lead", "Email Available", "Email Sent", "Follow-up Due", "Replied", "Interested", "Not Interested", "Collaboration Confirmed"],
+  "steps": [
+    { "id": "research", "action": "Add or import publicly available profile and business contact fields", "duplicate_key": ["instagram_username", "public_business_email"] },
+    { "id": "filter", "action": "Calculate fit score and sort prospects", "human_review": true },
+    { "id": "draft_initial", "action": "Generate editable template-based initial email", "required_content": ["brand introduction", "collaboration opportunity", "selection reason", "clear call to action", "sender identity", "opt-out"], "approval_required": true },
+    { "id": "initial_send_demo", "action": "Record approved demo send and schedule follow-up 1", "delay_days": 4, "external_send": false },
+    { "id": "follow_up_1", "action": "Record approved first follow-up demo", "schedule_follow_up_2_days_after": 6, "stop_on_reply": true, "stop_on_decline": true, "stop_on_opt_out": true },
+    { "id": "follow_up_2", "action": "Record approved final follow-up demo", "stop_on_reply": true, "stop_on_decline": true, "stop_on_opt_out": true },
+    { "id": "reply_management", "action": "Classify reply with local keyword rules, draft response, suggest next step", "approval_required_before_send": true, "stop_follow_ups": true },
+    { "id": "crm_update", "action": "Update status and activity log", "audit_log": true }
+  ],
+  "suppression_rules": [
+    "Any response stops pending follow-ups.",
+    "A decline updates status to Not Interested and suppresses further follow-ups.",
+    "An opt-out sets opt_out=true, updates status to Not Interested, and suppresses future contact."
+  ]
+}
